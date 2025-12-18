@@ -34,6 +34,7 @@ app.use('/api/payments', require('./routes/payments'));
 app.use('/api/cache', require('./routes/cache'));
 app.use('/api/seed', require('./routes/seed')); // Seed database (remove after first use)
 app.use('/api/test', require('./routes/test')); // Test endpoint
+app.use('/api/quickseed', require('./routes/quickseed')); // Quick seed - just movies
 
 app.get('/api/health', (req, res) => {
   const cacheStats = getCacheStats();
