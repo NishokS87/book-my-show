@@ -118,8 +118,14 @@ function displayBookings(bookings) {
                 ${canCancel ? `
                     <div class="booking-actions">
                         <button class="btn-danger" onclick="cancelBooking('${booking._id}')">
-                            Cancel Booking
+                            <i class="fas fa-times-circle"></i> Cancel Booking
                         </button>
+                    </div>
+                ` : booking.status === 'cancelled' ? `
+                    <div class="booking-actions">
+                        <div style="color: #dc3545; font-weight: 600; text-align: right;">
+                            <i class="fas fa-ban"></i> Cancelled
+                        </div>
                     </div>
                 ` : ''}
             </div>
@@ -129,7 +135,7 @@ function displayBookings(bookings) {
 
 // Cancel booking
 async function cancelBooking(bookingId) {
-    if (!confirm('Are you sure you want to cancel this booking?\n\nYour seats will be released and made available to other users.')) {
+    if (!confirm('🎫 Cancel This Booking?\n\n✓ Your seats will be released immediately\n✓ Other users can book them\n✓ Refund will be processed (demo)\n\nAre you sure you want to cancel?')) {
         return;
     }
     
@@ -146,14 +152,14 @@ async function cancelBooking(bookingId) {
         console.log('Cancel response:', data);
         
         if (response.ok && data.status === 'success') {
-            alert('✓ Booking cancelled successfully!\n\nYour seats have been released.');
+            alert('✅ Booking Cancelled Successfully!\n\n✓ Seats released and available for others\n✓ Refund processed (demo)\n\nCheck your updated bookings below.');
             loadBookings(); // Reload bookings
         } else {
-            alert(data.message || 'Failed to cancel booking. Please try again.');
+            alert('❌ Cancellation Failed\n\n' + (data.message || 'Please try again.'));
         }
     } catch (error) {
         console.error('Error cancelling booking:', error);
-        alert('Error cancelling booking. Please check your connection and try again.');
+        alert('❌ Network Error\n\nPlease check your connection and try again.');
     }
 }
 
