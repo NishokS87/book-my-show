@@ -42,7 +42,7 @@ npm install
 4. Copy "Publishable key" and "Secret key"
 5. Update in `.env`:
    ```
-   STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
+   STRIPE_SECRET_KEY=your_stripe_secret_key
    STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx
    ```
 

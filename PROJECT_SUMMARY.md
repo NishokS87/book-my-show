@@ -57,7 +57,7 @@ See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed MongoDB Atlas setup instructio
 
 Add your Stripe keys to `.env`:
 ```env
-STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_SECRET_KEY=your_stripe_key
 STRIPE_PUBLISHABLE_KEY=pk_test_xxxxx
 ```
 
