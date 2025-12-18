@@ -135,7 +135,7 @@ function displayBookings(bookings) {
 
 // Cancel booking
 async function cancelBooking(bookingId) {
-    if (!confirm('🎫 Cancel This Booking?\n\n✓ Your seats will be released immediately\n✓ Other users can book them\n✓ Refund will be processed (demo)\n\nAre you sure you want to cancel?')) {
+    if (!confirm('🎫 FREE CANCELLATION\n\n✓ No cancellation charges (Demo system)\n✓ Seats will be released immediately\n✓ Others can book them\n\nCancel this FREE booking?')) {
         return;
     }
     
@@ -152,7 +152,7 @@ async function cancelBooking(bookingId) {
         console.log('Cancel response:', data);
         
         if (response.ok && data.status === 'success') {
-            alert('✅ Booking Cancelled Successfully!\n\n✓ Seats released and available for others\n✓ Refund processed (demo)\n\nCheck your updated bookings below.');
+            alert('✅ FREE Booking Cancelled!\n\n✓ No charges - it was FREE!\n✓ Seats released for others\n✓ Booking status updated\n\nThis is a demo system - no refund needed!');
             loadBookings(); // Reload bookings
         } else {
             alert('❌ Cancellation Failed\n\n' + (data.message || 'Please try again.'));
