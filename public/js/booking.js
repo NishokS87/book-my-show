@@ -105,13 +105,18 @@ function displaySeats(show) {
                     // Find pricing for this seat type
                     const seatType = seat.seatType || seat.type;
                     const pricing = show.pricing?.find(p => p.seatType === seatType) || show.pricing?.[0] || { price: 0 };
+                    
+                    // Ensure status is correctly set: 'booked' or 'available'
+                    const seatStatus = (seat.status === 'booked' || seat.status === 'blocked') ? 'booked' : 'available';
+                    
                     return `
-                        <div class="seat ${seat.status}" 
+                        <div class="seat ${seatStatus}" 
                              data-seat-id="${seat._id}"
                              data-row="${seat.row}"
                              data-number="${seat.number}"
                              data-type="${seatType}"
                              data-price="${pricing.price}"
+                             data-status="${seatStatus}"
                              onclick="toggleSeat(this)">
                             ${seat.number}
                         </div>
@@ -124,13 +129,15 @@ function displaySeats(show) {
 
 // Toggle seat selection
 function toggleSeat(seatElement) {
-    const status = seatElement.classList.contains('booked') ? 'booked' : 
-                   seatElement.classList.contains('selected') ? 'selected' : 'available';
+    // Check if seat is booked (either by class or data attribute)
+    const isBooked = seatElement.classList.contains('booked') || seatElement.dataset.status === 'booked';
     
-    if (status === 'booked') {
-        alert('❌ This seat is already booked!\n\nPlease select a different seat.');
+    if (isBooked) {
+        alert('🔒 SEAT ALREADY BOOKED!\n\n❌ This seat has been booked by another user.\n✓ Please select a GREEN seat (available).\n\nBooked seats are shown in RED with X mark.');
         return; // Can't select booked seats
     }
+    
+    const status = seatElement.classList.contains('selected') ? 'selected' : 'available';
     
     const seatId = seatElement.dataset.seatId;
     const row = seatElement.dataset.row;
