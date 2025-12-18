@@ -75,6 +75,7 @@ router.get('/', async (req, res) => {
             owner = await User.create({
                 name: 'Theater Owner',
                 email: 'owner@theaters.com',
+                phone: '9876543210',
                 password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // hashed password
                 role: 'theater-owner'
             });
