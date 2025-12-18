@@ -103,13 +103,14 @@ function displaySeats(show) {
                 <span class="row-label">${row}</span>
                 ${seats.map(seat => {
                     // Find pricing for this seat type
-                    const pricing = show.pricing?.find(p => p.seatType === seat.type) || { price: 0 };
+                    const seatType = seat.seatType || seat.type;
+                    const pricing = show.pricing?.find(p => p.seatType === seatType) || show.pricing?.[0] || { price: 0 };
                     return `
                         <div class="seat ${seat.status}" 
-                             data-seat-id="${seat.seatId}"
+                             data-seat-id="${seat._id}"
                              data-row="${seat.row}"
                              data-number="${seat.number}"
-                             data-type="${seat.type}"
+                             data-type="${seatType}"
                              data-price="${pricing.price}"
                              onclick="toggleSeat(this)">
                             ${seat.number}
