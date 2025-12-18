@@ -132,10 +132,15 @@ router.get('/', async (req, res) => {
         });
     } catch (error) {
         console.error('Quick seed error:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
         res.status(500).json({
             status: 'error',
             message: error.message,
-            stack: error.stack
+            name: error.name,
+            stack: process.env.NODE_ENV === 'production' ? undefined : error.stack,
+            details: JSON.stringify(error, null, 2)
         });
     }
 });
