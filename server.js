@@ -36,6 +36,7 @@ app.use('/api/seed', require('./routes/seed')); // Seed database (remove after f
 app.use('/api/test', require('./routes/test')); // Test endpoint
 app.use('/api/quickseed', require('./routes/quickseed')); // Quick seed - just movies
 app.use('/api/addmovie', require('./routes/addmovie')); // Add single movie
+app.use('/api/fullseed', require('./routes/fullseed')); // Full seed with movies, theaters, shows
 
 app.get('/api/health', (req, res) => {
   const cacheStats = getCacheStats();
