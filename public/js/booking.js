@@ -51,13 +51,21 @@ async function loadShowDetails() {
 // Display show info
 function displayShowInfo(show) {
     const showInfo = document.getElementById('showInfo');
+    const showDate = new Date(show.showDate);
+    const dateStr = showDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    const availableSeats = show.availableSeats?.filter(s => s.status === 'available').length || 0;
+    const bookedSeats = show.bookedSeats || 0;
+    const totalSeats = show.totalSeats || show.availableSeats?.length || 0;
+    
     showInfo.innerHTML = `
         <h2>${show.movie.title}</h2>
         <div class="show-info-meta">
             <span><i class="fas fa-building"></i> ${show.theater.name}</span>
-            <span><i class="fas fa-calendar"></i> ${formatDate(show.showTime)}</span>
-            <span><i class="fas fa-clock"></i> ${formatTime(show.showTime)}</span>
+            <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+            <span style="font-weight: 600; font-size: 18px; color: #f84464;"><i class="fas fa-clock"></i> ${show.showTime}</span>
             <span><i class="fas fa-film"></i> ${show.format}</span>
+            <span style="color: ${availableSeats > 20 ? '#28a745' : availableSeats > 10 ? '#ffc107' : '#dc3545'};"><i class="fas fa-couch"></i> ${availableSeats} Available / ${totalSeats} Total</span>
+            <span style="color: #666;"><i class="fas fa-check-circle"></i> ${bookedSeats} Booked</span>
         </div>
     `;
 }

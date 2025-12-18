@@ -33,8 +33,9 @@
         <div class="container">
             <h2>Select Your Show</h2>
             <div class="date-selector">
-                <button class="date-btn active" id="today">Today</button>
-                <button class="date-btn" id="tomorrow">Tomorrow</button>
+                <button class="date-btn active" data-offset="0">Today</button>
+                <button class="date-btn" data-offset="1">Tomorrow</button>
+                <button class="date-btn" data-offset="2" id="dayAfter"></button>
             </div>
             <div id="showsList" class="shows-list">
                 <!-- Shows will be loaded here -->

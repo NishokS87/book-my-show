@@ -407,6 +407,17 @@ body {
     gap: 20px;
     flex-wrap: wrap;
     color: var(--text-light);
+    font-size: 14px;
+}
+
+.show-info-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.show-info-meta span i {
+    font-size: 14px;
 }
 
 .seat-selection {
@@ -478,10 +489,22 @@ body {
 }
 
 .seat.booked {
-    background-color: #ccc;
-    border-color: #999;
+    background-color: #ffdddd;
+    border-color: #ff6b6b;
+    border-width: 2px;
     cursor: not-allowed;
-    color: #666;
+    color: #dc3545;
+    font-weight: 600;
+    position: relative;
+    opacity: 0.7;
+}
+
+.seat.booked::before {
+    content: '✕';
+    position: absolute;
+    font-size: 16px;
+    color: #dc3545;
+    font-weight: bold;
 }
 
 .seat-legend {

@@ -97,10 +97,48 @@ function displayMovieDetails(movie) {
     `;
 }
 
+// Initialize date selector
+function initializeDateSelector() {
+    const dayAfterBtn = document.getElementById('dayAfter');
+    const dayAfterDate = new Date();
+    dayAfterDate.setDate(dayAfterDate.getDate() + 2);
+    const dayAfterText = dayAfterDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    dayAfterBtn.textContent = dayAfterText;
+    
+    // Add click handlers for date buttons
+    document.querySelectorAll('.date-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const offset = parseInt(this.dataset.offset);
+            filterShowsByDate(offset);
+        });
+    });
+}
+
+// Filter shows by date offset
+function filterShowsByDate(dayOffset) {
+    const filterDate = new Date();
+    filterDate.setDate(filterDate.getDate() + dayOffset);
+    filterDate.setHours(0, 0, 0, 0);
+    
+    const nextDay = new Date(filterDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    const filteredShows = currentShows.filter(show => {
+        const showDate = new Date(show.showDate);
+        showDate.setHours(0, 0, 0, 0);
+        return showDate >= filterDate && showDate < nextDay;
+    });
+    
+    displayShows(filteredShows);
+}
+
 // Load shows for movie
 async function loadShows() {
     console.log('Loading shows for movie:', movieId);
     document.getElementById('showsSection').style.display = 'block';
+    initializeDateSelector();
     const showsList = document.getElementById('showsList');
     showsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading shows...</p></div>';
     
