@@ -67,61 +67,98 @@ router.get('/', async (req, res) => {
         
         console.log('✅ Created movies:', movies.length);
 
+        // Create a dummy owner (theater owner user)
+        const User = require('../models/User');
+        let owner = await User.findOne({ role: 'theater-owner' });
+        if (!owner) {
+            // Create a theater owner if none exists
+            owner = await User.create({
+                name: 'Theater Owner',
+                email: 'owner@theaters.com',
+                password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // hashed password
+                role: 'theater-owner'
+            });
+        }
+
         // Create theaters with proper seat layouts
         const theaters = await Theater.insertMany([
             {
                 name: 'PVR Cinemas',
-                location: 'Phoenix Market City, Chennai',
-                city: 'Chennai',
+                location: {
+                    city: 'Chennai',
+                    area: 'Velachery',
+                    address: 'Phoenix Market City, 142, Velachery Main Road',
+                    pincode: '600042'
+                },
+                owner: owner._id,
+                facilities: ['Parking', 'Food Court', 'M-Ticket', 'Wheelchair'],
                 screens: [
                     {
                         screenNumber: 1,
-                        name: 'Audi 1',
-                        capacity: 200,
+                        screenName: 'Audi 1',
+                        totalSeats: 160,
                         seatLayout: {
-                            rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+                            rows: 8,
                             seatsPerRow: 20,
                             seatTypes: [
                                 {
                                     type: 'Premium',
                                     price: 300,
-                                    rows: ['A', 'B', 'C']
+                                    seats: Array.from({ length: 60 }, (_, i) => ({
+                                        row: ['A', 'B', 'C'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Gold',
                                     price: 200,
-                                    rows: ['D', 'E', 'F']
+                                    seats: Array.from({ length: 60 }, (_, i) => ({
+                                        row: ['D', 'E', 'F'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Silver',
                                     price: 150,
-                                    rows: ['G', 'H']
+                                    seats: Array.from({ length: 40 }, (_, i) => ({
+                                        row: ['G', 'H'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 }
                             ]
                         }
                     },
                     {
                         screenNumber: 2,
-                        name: 'Audi 2',
-                        capacity: 150,
+                        screenName: 'Audi 2',
+                        totalSeats: 108,
                         seatLayout: {
-                            rows: ['A', 'B', 'C', 'D', 'E', 'F'],
+                            rows: 6,
                             seatsPerRow: 18,
                             seatTypes: [
                                 {
                                     type: 'Premium',
                                     price: 280,
-                                    rows: ['A', 'B']
+                                    seats: Array.from({ length: 36 }, (_, i) => ({
+                                        row: ['A', 'B'][Math.floor(i / 18)],
+                                        number: (i % 18) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Gold',
                                     price: 180,
-                                    rows: ['C', 'D']
+                                    seats: Array.from({ length: 36 }, (_, i) => ({
+                                        row: ['C', 'D'][Math.floor(i / 18)],
+                                        number: (i % 18) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Silver',
                                     price: 130,
-                                    rows: ['E', 'F']
+                                    seats: Array.from({ length: 36 }, (_, i) => ({
+                                        row: ['E', 'F'][Math.floor(i / 18)],
+                                        number: (i % 18) + 1
+                                    }))
                                 }
                             ]
                         }
@@ -130,31 +167,46 @@ router.get('/', async (req, res) => {
             },
             {
                 name: 'INOX',
-                location: 'Express Avenue Mall, Chennai',
-                city: 'Chennai',
+                location: {
+                    city: 'Chennai',
+                    area: 'Express Avenue',
+                    address: 'Express Avenue Mall, Whites Road',
+                    pincode: '600002'
+                },
+                owner: owner._id,
+                facilities: ['Parking', 'Food Court', 'M-Ticket'],
                 screens: [
                     {
                         screenNumber: 1,
-                        name: 'Screen 1',
-                        capacity: 180,
+                        screenName: 'Screen 1',
+                        totalSeats: 140,
                         seatLayout: {
-                            rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                            rows: 7,
                             seatsPerRow: 20,
                             seatTypes: [
                                 {
                                     type: 'Premium',
                                     price: 320,
-                                    rows: ['A', 'B']
+                                    seats: Array.from({ length: 40 }, (_, i) => ({
+                                        row: ['A', 'B'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Gold',
                                     price: 220,
-                                    rows: ['C', 'D', 'E']
+                                    seats: Array.from({ length: 60 }, (_, i) => ({
+                                        row: ['C', 'D', 'E'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Silver',
                                     price: 160,
-                                    rows: ['F', 'G']
+                                    seats: Array.from({ length: 40 }, (_, i) => ({
+                                        row: ['F', 'G'][Math.floor(i / 20)],
+                                        number: (i % 20) + 1
+                                    }))
                                 }
                             ]
                         }
@@ -163,31 +215,46 @@ router.get('/', async (req, res) => {
             },
             {
                 name: 'AGS Cinemas',
-                location: 'OMR, Chennai',
-                city: 'Chennai',
+                location: {
+                    city: 'Chennai',
+                    area: 'OMR',
+                    address: 'Navalur, OMR Road',
+                    pincode: '600130'
+                },
+                owner: owner._id,
+                facilities: ['Parking', 'Food Court', '3D'],
                 screens: [
                     {
                         screenNumber: 1,
-                        name: 'Screen 1',
-                        capacity: 220,
+                        screenName: 'Screen 1',
+                        totalSeats: 198,
                         seatLayout: {
-                            rows: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+                            rows: 9,
                             seatsPerRow: 22,
                             seatTypes: [
                                 {
                                     type: 'Premium',
                                     price: 290,
-                                    rows: ['A', 'B', 'C']
+                                    seats: Array.from({ length: 66 }, (_, i) => ({
+                                        row: ['A', 'B', 'C'][Math.floor(i / 22)],
+                                        number: (i % 22) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Gold',
                                     price: 190,
-                                    rows: ['D', 'E', 'F']
+                                    seats: Array.from({ length: 66 }, (_, i) => ({
+                                        row: ['D', 'E', 'F'][Math.floor(i / 22)],
+                                        number: (i % 22) + 1
+                                    }))
                                 },
                                 {
                                     type: 'Silver',
                                     price: 140,
-                                    rows: ['G', 'H', 'I']
+                                    seats: Array.from({ length: 66 }, (_, i) => ({
+                                        row: ['G', 'H', 'I'][Math.floor(i / 22)],
+                                        number: (i % 22) + 1
+                                    }))
                                 }
                             ]
                         }
@@ -217,39 +284,26 @@ router.get('/', async (req, res) => {
                         const numShows = Math.floor(Math.random() * 2) + 2; // 2 or 3 shows
                         for (let i = 0; i < numShows; i++) {
                             const timeStr = showtimes[i];
-                            const [time, period] = timeStr.split(' ');
-                            const [hours, minutes] = time.split(':');
-                            let hour = parseInt(hours);
                             
-                            if (period === 'PM' && hour !== 12) hour += 12;
-                            if (period === 'AM' && hour === 12) hour = 0;
-                            
-                            const showDateTime = new Date(showDate);
-                            showDateTime.setHours(hour, parseInt(minutes), 0, 0);
-                            
-                            // Initialize all seats as available
-                            const seats = [];
+                            // Build available seats from screen layout
+                            const availableSeats = [];
                             const pricing = [];
-                            const seatTypesUsed = new Set();
                             
-                            for (const row of screen.seatLayout.rows) {
-                                for (let seatNum = 1; seatNum <= screen.seatLayout.seatsPerRow; seatNum++) {
-                                    const seatType = screen.seatLayout.seatTypes.find(st => st.rows.includes(row));
-                                    seats.push({
-                                        row: row,
-                                        number: seatNum,
+                            for (const seatType of screen.seatLayout.seatTypes) {
+                                // Add pricing
+                                pricing.push({
+                                    seatType: seatType.type,
+                                    price: seatType.price
+                                });
+                                
+                                // Add all seats from this type
+                                for (const seat of seatType.seats) {
+                                    availableSeats.push({
+                                        row: seat.row,
+                                        number: seat.number,
                                         seatType: seatType.type,
                                         status: 'available'
                                     });
-                                    
-                                    // Add to pricing if not already added
-                                    if (!seatTypesUsed.has(seatType.type)) {
-                                        pricing.push({
-                                            seatType: seatType.type,
-                                            price: seatType.price
-                                        });
-                                        seatTypesUsed.add(seatType.type);
-                                    }
                                 }
                             }
                             
@@ -262,8 +316,8 @@ router.get('/', async (req, res) => {
                                 language: movie.language,
                                 format: ['2D', '3D', 'IMAX'][Math.floor(Math.random() * 3)],
                                 pricing: pricing,
-                                availableSeats: seats,
-                                totalSeats: seats.length,
+                                availableSeats: availableSeats,
+                                totalSeats: screen.totalSeats,
                                 bookedSeats: 0
                             });
                         }
