@@ -1,0 +1,9 @@
+node_modules
+.env
+.git
+.gitignore
+README.md
+API_TESTING_GUIDE.md
+.github
+test-js.html
+JAVASCRIPT_FIXED.md

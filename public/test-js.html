@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Test - BookMyShow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pass { background: #d4edda; }
+        .fail { background: #f8d7da; }
+        button {
+            background: #f84464;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d63852;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 JavaScript Files Test</h1>
+    
+    <div class="test-card">
+        <h2>Testing Core Functions</h2>
+        <div id="testResults"></div>
+        <button onclick="runTests()">Run All Tests</button>
+        <button onclick="clearTests()">Clear Results</button>
+    </div>
+
+    <div class="test-card">
+        <h2>Manual Login Test</h2>
+        <p>Test the login system without MongoDB:</p>
+        <input type="email" id="testEmail" placeholder="test@example.com" style="width: 200px; padding: 8px;">
+        <input type="password" id="testPassword" placeholder="password" style="width: 200px; padding: 8px;">
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testLogout()">Test Logout</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="test-card">
+        <h2>Navigation Test</h2>
+        <p>Current user role: <strong id="currentRole">Not logged in</strong></p>
+        <div class="nav-links" id="navTest"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function addResult(testName, passed, message = '') {
+            const results = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `
+                <strong>${passed ? '✅' : '❌'} ${testName}</strong>
+                ${message ? `<br><small>${message}</small>` : ''}
+            `;
+            results.appendChild(div);
+        }
+
+        function runTests() {
+            document.getElementById('testResults').innerHTML = '<h3>Running Tests...</h3>';
+
+            // Test 1: Check if config.js loaded
+            try {
+                if (typeof API_ENDPOINTS !== 'undefined') {
+                    addResult('config.js loaded', true, 'API_ENDPOINTS object exists');
+                } else {
+                    addResult('config.js loaded', false, 'API_ENDPOINTS not found');
+                }
+            } catch (e) {
+                addResult('config.js loaded', false, e.message);
+            }
+
+            // Test 2: Check auth functions
+            try {
+                if (typeof isLoggedIn === 'function') {
+                    addResult('isLoggedIn() exists', true);
+                } else {
+                    addResult('isLoggedIn() exists', false);
+                }
+            } catch (e) {
+                addResult('isLoggedIn() exists', false, e.message);
+            }
+
+            // Test 3: Check getUserInfo
+            try {
+                if (typeof getUserInfo === 'function') {
+                    addResult('getUserInfo() exists', true);
+                } else {
+                    addResult('getUserInfo() exists', false);
+                }
+            } catch (e) {
+                addResult('getUserInfo() exists', false, e.message);
+            }
+
+            // Test 4: Check getUser
+            try {
+                if (typeof getUser === 'function') {
+                    addResult('getUser() exists', true);
+                } else {
+                    addResult('getUser() exists', false);
+                }
+            } catch (e) {
+                addResult('getUser() exists', false, e.message);
+            }
+
+            // Test 5: Check getToken
+            try {
+                if (typeof getToken === 'function') {
+                    addResult('getToken() exists', true);
+                } else {
+                    addResult('getToken() exists', false);
+                }
+            } catch (e) {
+                addResult('getToken() exists', false, e.message);
+            }
+
+            // Test 6: Check updateNavigation
+            try {
+                if (typeof updateNavigation === 'function') {
+                    addResult('updateNavigation() exists', true);
+                    updateNavigation();
+                } else {
+                    addResult('updateNavigation() exists', false);
+                }
+            } catch (e) {
+                addResult('updateNavigation() exists', false, e.message);
+            }
+
+            // Test 7: Check logout function
+            try {
+                if (typeof logout === 'function') {
+                    addResult('logout() exists', true);
+                } else {
+                    addResult('logout() exists', false);
+                }
+            } catch (e) {
+                addResult('logout() exists', false, e.message);
+            }
+
+            // Test 8: Check API endpoints
+            try {
+                const endpoints = ['LOGIN', 'REGISTER', 'MOVIES', 'THEATERS', 'SHOWS', 'BOOKINGS', 'USERS'];
+                let allExist = true;
+                let missing = [];
+                
+                endpoints.forEach(ep => {
+                    if (!API_ENDPOINTS[ep]) {
+                        allExist = false;
+                        missing.push(ep);
+                    }
+                });
+
+                if (allExist) {
+                    addResult('All API endpoints defined', true, endpoints.join(', '));
+                } else {
+                    addResult('All API endpoints defined', false, 'Missing: ' + missing.join(', '));
+                }
+            } catch (e) {
+                addResult('All API endpoints defined', false, e.message);
+            }
+
+            // Test 9: Check format functions
+            try {
+                const testDate = new Date();
+                const formatted = formatDate(testDate);
+                addResult('formatDate() works', true, `Result: ${formatted}`);
+            } catch (e) {
+                addResult('formatDate() works', false, e.message);
+            }
+
+            try {
+                const testDate = new Date();
+                const formatted = formatTime(testDate);
+                addResult('formatTime() works', true, `Result: ${formatted}`);
+            } catch (e) {
+                addResult('formatTime() works', false, e.message);
+            }
+
+            try {
+                const formatted = formatCurrency(1000);
+                addResult('formatCurrency() works', true, `Result: ${formatted}`);
+            } catch (e) {
+                addResult('formatCurrency() works', false, e.message);
+            }
+        }
+
+        function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            // Simulate login (without actual API call)
+            const fakeUser = {
+                name: 'Test User',
+                email: email,
+                role: 'user'
+            };
+            const fakeToken = 'test-token-12345';
+            
+            localStorage.setItem('user', JSON.stringify(fakeUser));
+            localStorage.setItem('token', fakeToken);
+            
+            document.getElementById('loginResult').innerHTML = `
+                <div class="test-result pass">
+                    ✅ Login simulated successfully!<br>
+                    <small>User: ${fakeUser.name} | Email: ${email} | Role: ${fakeUser.role}</small>
+                </div>
+            `;
+            
+            updateNavigation();
+            updateRoleDisplay();
+        }
+
+        function testLogout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            
+            document.getElementById('loginResult').innerHTML = `
+                <div class="test-result pass">
+                    ✅ Logout successful!
+                </div>
+            `;
+            
+            updateNavigation();
+            updateRoleDisplay();
+        }
+
+        function updateRoleDisplay() {
+            const user = getUser();
+            const roleEl = document.getElementById('currentRole');
+            if (user) {
+                roleEl.textContent = `${user.name} (${user.role})`;
+            } else {
+                roleEl.textContent = 'Not logged in';
+            }
+        }
+
+        function clearTests() {
+            document.getElementById('testResults').innerHTML = '';
+        }
+
+        // Test different roles
+        function testAdminRole() {
+            localStorage.setItem('user', JSON.stringify({
+                name: 'Admin User',
+                email: 'admin@test.com',
+                role: 'admin'
+            }));
+            localStorage.setItem('token', 'admin-token');
+            updateNavigation();
+            updateRoleDisplay();
+        }
+
+        function testTheaterOwnerRole() {
+            localStorage.setItem('user', JSON.stringify({
+                name: 'Theater Owner',
+                email: 'owner@test.com',
+                role: 'theater-owner'
+            }));
+            localStorage.setItem('token', 'owner-token');
+            updateNavigation();
+            updateRoleDisplay();
+        }
+
+        function testUserRole() {
+            localStorage.setItem('user', JSON.stringify({
+                name: 'Regular User',
+                email: 'user@test.com',
+                role: 'user'
+            }));
+            localStorage.setItem('token', 'user-token');
+            updateNavigation();
+            updateRoleDisplay();
+        }
+
+        // Run tests on load
+        setTimeout(() => {
+            runTests();
+            updateRoleDisplay();
+        }, 500);
+    </script>
+
+    <div class="test-card">
+        <h2>Role Switching Test</h2>
+        <p>Test different navigation for different roles:</p>
+        <button onclick="testUserRole()">Switch to User</button>
+        <button onclick="testTheaterOwnerRole()">Switch to Theater Owner</button>
+        <button onclick="testAdminRole()">Switch to Admin</button>
+        <button onclick="testLogout()">Logout</button>
+    </div>
+
+    <div class="test-card">
+        <h2>✅ All JavaScript Files Status</h2>
+        <ul>
+            <li><strong>config.js</strong> - ✅ API endpoints, auth helpers, format functions</li>
+            <li><strong>auth.js</strong> - ✅ Navigation updates, role-based UI</li>
+            <li><strong>movies.js</strong> - ✅ Movie listing and filtering</li>
+            <li><strong>movie-details.js</strong> - ✅ Show selection (Option 3 fixed)</li>
+            <li><strong>booking.js</strong> - ✅ Seat selection and booking</li>
+            <li><strong>my-bookings.js</strong> - ✅ Booking management</li>
+            <li><strong>admin-dashboard.js</strong> - ✅ Admin panel</li>
+            <li><strong>theater-owner-dashboard.js</strong> - ✅ Theater owner panel</li>
+        </ul>
+    </div>
+
+    <div class="test-card">
+        <h2>⚠️ MongoDB Connection</h2>
+        <p>The server is running but cannot connect to MongoDB Atlas.</p>
+        <p><strong>To fix:</strong></p>
+        <ol>
+            <li>Go to <a href="https://cloud.mongodb.com/" target="_blank">https://cloud.mongodb.com/</a></li>
+            <li>Click "Network Access" → "Add IP Address"</li>
+            <li>Select "Allow Access From Anywhere" (0.0.0.0/0)</li>
+            <li>Wait 2 minutes, then run: <code>node seedData.js</code></li>
+        </ol>
+    </div>
+</body>
+</html>

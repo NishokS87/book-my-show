@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - BookMyShow</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-ticket-alt"></i>
+                <span>BookMyShow</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html">Home</a>
+                <a href="#" id="myBookingsBtn">My Bookings</a>
+                <a href="#" id="authBtn">Sign In</a>
+            </nav>
+        </div>
+    </header>
+
+    <div id="movieDetails" class="movie-details-container">
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading movie details...</p>
+        </div>
+    </div>
+
+    <section id="showsSection" class="shows-section" style="display: none;">
+        <div class="container">
+            <h2>Select Your Show</h2>
+            <div class="date-selector">
+                <button class="date-btn active" id="today">Today</button>
+                <button class="date-btn" id="tomorrow">Tomorrow</button>
+            </div>
+            <div id="showsList" class="shows-list">
+                <!-- Shows will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 BookMyShow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/movie-details.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+let allMovies = [];
+
+// Load movies
+async function loadMovies() {
+    const moviesGrid = document.getElementById('moviesGrid');
+    
+    try {
+        const response = await fetch(API_ENDPOINTS.MOVIES);
+        const data = await response.json();
+        
+        if (response.ok && data.status === 'success') {
+            // Handle both response formats: data.data or data.movies
+            allMovies = Array.isArray(data.data) ? data.data : (data.movies || []);
+            console.log('Loaded movies:', allMovies.length);
+            displayMovies(allMovies);
+        } else {
+            console.error('Failed to load movies:', data);
+            moviesGrid.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Failed to load movies: ${data.message || 'Unknown error'}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading movies:', error);
+        moviesGrid.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Error connecting to server. Please check if the server is running.</p>
+            </div>
+        `;
+    }
+}
+
+// Display movies
+function displayMovies(movies) {
+    const moviesGrid = document.getElementById('moviesGrid');
+    
+    if (!movies || movies.length === 0) {
+        moviesGrid.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-film"></i>
+                <p>No movies found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    moviesGrid.innerHTML = movies.map(movie => `
+        <div class="movie-card" onclick="viewMovie('${movie._id}')">
+            <div class="movie-poster">
+                <i class="fas fa-film"></i>
+            </div>
+            <div class="movie-info">
+                <h3>${movie.title}</h3>
+                <div class="movie-meta">
+                    <span class="badge badge-language">${movie.language}</span>
+                    <span class="badge badge-rating">
+                        <i class="fas fa-star"></i> ${movie.rating}/10
+                    </span>
+                </div>
+                <div class="movie-genre">${movie.genre.join(', ')}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// View movie details
+function viewMovie(movieId) {
+    window.location.href = `movie-details.html?id=${movieId}`;
+}
+
+// Search movies
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        if (!query) {
+            displayMovies(allMovies);
+            return;
+        }
+        
+        const filtered = allMovies.filter(movie => 
+            movie.title.toLowerCase().includes(query) ||
+            movie.director.toLowerCase().includes(query) ||
+            movie.cast.some(actor => actor.toLowerCase().includes(query))
+        );
+        displayMovies(filtered);
+    });
+}
+
+// Filter by language
+const languageFilter = document.getElementById('languageFilter');
+if (languageFilter) {
+    languageFilter.addEventListener('change', (e) => {
+        const language = e.target.value;
+        const genre = document.getElementById('genreFilter')?.value || '';
+        filterMovies(language, genre);
+    });
+}
+
+// Filter by genre
+const genreFilter = document.getElementById('genreFilter');
+if (genreFilter) {
+    genreFilter.addEventListener('change', (e) => {
+        const genre = e.target.value;
+        const language = document.getElementById('languageFilter')?.value || '';
+        filterMovies(language, genre);
+    });
+}
+
+// Filter movies
+function filterMovies(language, genre) {
+    let filtered = allMovies;
+    
+    if (language) {
+        filtered = filtered.filter(movie => movie.language === language);
+    }
+    
+    if (genre) {
+        filtered = filtered.filter(movie => movie.genre.includes(genre));
+    }
+    
+    displayMovies(filtered);
+}
+
+// Load movies on page load
+document.addEventListener('DOMContentLoaded', loadMovies);
