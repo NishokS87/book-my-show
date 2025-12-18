@@ -128,6 +128,7 @@ function toggleSeat(seatElement) {
                    seatElement.classList.contains('selected') ? 'selected' : 'available';
     
     if (status === 'booked') {
+        alert('❌ This seat is already booked!\n\nPlease select a different seat.');
         return; // Can't select booked seats
     }
     
@@ -232,9 +233,11 @@ if (proceedBtn) {
                 const booking = data.booking || data.data;
                 showPaymentModal(booking);
             } else {
-                alert(data.message || 'Booking failed. Please try again.');
+                // Show detailed error message
+                const errorMsg = data.message || 'Booking failed. Please try again.';
+                alert('❌ Booking Failed\n\n' + errorMsg + '\n\nThe page will refresh to show updated seat availability.');
                 // Reload show to get updated seat availability
-                await loadShowDetails();
+                window.location.reload();
             }
         } catch (error) {
             console.error('Error creating booking:', error);
@@ -275,10 +278,15 @@ if (confirmPaymentBtn) {
             
             if (response.ok && data.status === 'success') {
                 const booking = data.booking || data.data;
-                alert('✓ Booking Confirmed!\n\nBooking Code: ' + booking.bookingCode + '\n\nYou can view your booking in "My Bookings"');
+                const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
+                alert(`✅ Booking Confirmed Successfully!\n\n` +
+                      `Booking Code: ${booking.bookingCode}\n` +
+                      `Seats: ${seatsList}\n` +
+                      `Total Amount: ₹${booking.totalAmount}\n\n` +
+                      `You can view your booking in "My Bookings"`);
                 window.location.href = 'my-bookings.html';
             } else {
-                alert(data.message || 'Payment failed. Please try again.');
+                alert('❌ Payment Failed\n\n' + (data.message || 'Please try again.'));
             }
         } catch (error) {
             console.error('Error confirming payment:', error);
