@@ -178,24 +178,35 @@ function updateBookingSummary() {
 // Show payment modal
 function showPaymentModal(booking) {
     const modal = document.getElementById('paymentModal');
-    const bookingCode = document.getElementById('bookingCode');
     const paymentAmount = document.getElementById('paymentAmount');
+    const paymentSeats = document.getElementById('paymentSeats');
     
     modal.dataset.bookingId = booking._id;
-    bookingCode.textContent = booking.bookingCode;
-    paymentAmount.textContent = `₹${booking.totalAmount.toFixed(2)}`;
+    paymentAmount.textContent = `₹${booking.totalAmount.toFixed(0)}`;
+    
+    // Show seat details
+    const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
+    paymentSeats.innerHTML = `<strong>${seatsList}</strong> (${booking.seats.length} seat${booking.seats.length > 1 ? 's' : ''})`;
     
     modal.style.display = 'flex';
 }
 
 // Close payment modal
-const closeModal = document.getElementById('closeModal');
+const closeModal = document.querySelector('.modal .close');
 if (closeModal) {
     closeModal.addEventListener('click', () => {
         const modal = document.getElementById('paymentModal');
         modal.style.display = 'none';
     });
 }
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('paymentModal');
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 
 // Proceed to booking button
 const proceedBtn = document.getElementById('proceedBtn');

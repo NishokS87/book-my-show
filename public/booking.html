@@ -77,14 +77,16 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Payment</h2>
-            <p>Complete your payment to confirm booking</p>
+            <h2>💳 Demo Payment</h2>
+            <p style="color: #666; font-size: 14px;">This is a demo payment system for project purposes</p>
             <div class="payment-details">
-                <p><strong>Amount:</strong> <span id="paymentAmount">₹0</span></p>
-                <p><strong>Seats:</strong> <span id="paymentSeats"></span></p>
+                <p><strong>Total Amount:</strong> <span id="paymentAmount" style="color: #f84464; font-size: 24px; font-weight: bold;">₹0</span></p>
+                <p><strong>Selected Seats:</strong> <span id="paymentSeats"></span></p>
+                <p style="font-size: 13px; color: #999; margin-top: 10px;">Click 'Pay & Confirm' to complete booking</p>
             </div>
-            <button id="confirmPaymentBtn" class="btn-primary">
-                <span id="payBtnText">Confirm Payment</span>
+            <button id="confirmPaymentBtn" class="btn-primary" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); font-size: 16px; padding: 15px;">
+                <i class="fas fa-check-circle"></i>
+                <span id="payBtnText">Pay & Confirm Booking</span>
                 <i id="payBtnLoader" class="fas fa-spinner fa-spin" style="display: none;"></i>
             </button>
         </div>
