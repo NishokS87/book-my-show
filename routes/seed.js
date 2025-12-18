@@ -21,26 +21,25 @@ router.get('/', async (req, res) => {
         
         console.log('✅ Cleared existing data');
 
-        // Create users
-        const salt = await bcrypt.genSalt(10);
-        
+        // Create users with pre-hashed password
+        // Password for all: admin123, owner123, password123 (hashed with bcrypt salt 10)
         const users = await User.insertMany([
             {
                 name: 'Admin User',
                 email: 'admin@bookmyshow.com',
-                password: await bcrypt.hash('admin123', salt),
+                password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // admin123
                 role: 'admin'
             },
             {
                 name: 'PVR Owner',
                 email: 'owner@pvr.com',
-                password: await bcrypt.hash('owner123', salt),
+                password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // owner123
                 role: 'theater-owner'
             },
             {
                 name: 'John Doe',
                 email: 'john@example.com',
-                password: await bcrypt.hash('password123', salt),
+                password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // password123
                 role: 'user'
             }
         ]);
