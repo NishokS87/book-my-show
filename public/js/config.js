@@ -1,5 +1,8 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:5001/api';
+// Use current domain for API calls (works both locally and on Vercel)
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5001/api' 
+    : `${window.location.origin}/api`;
 
 // API Endpoints
 const API_ENDPOINTS = {
