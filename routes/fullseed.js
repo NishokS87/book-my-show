@@ -67,19 +67,44 @@ router.get('/', async (req, res) => {
         
         console.log('✅ Created movies:', movies.length);
 
-        // Create a dummy owner (theater owner user)
+        // Create demo users
         const User = require('../models/User');
-        let owner = await User.findOne({ role: 'theater-owner' });
-        if (!owner) {
-            // Create a theater owner if none exists
-            owner = await User.create({
-                name: 'Theater Owner',
-                email: 'owner@theaters.com',
-                phone: '9876543210',
-                password: '$2a$10$zX9Z0jZ0jZ0jZ0jZ0jZ0jOeKqY5ZqY5ZqY5ZqY5ZqY5ZqY5ZqY5Zq', // hashed password
-                role: 'theater-owner'
-            });
-        }
+        const bcrypt = require('bcryptjs');
+        
+        // Delete existing demo users
+        await User.deleteMany({ 
+            email: { $in: ['admin@bookmyshow.com', 'john@example.com', 'owner@theaters.com'] } 
+        });
+        
+        // Create Admin User
+        const admin = await User.create({
+            name: 'Admin User',
+            email: 'admin@bookmyshow.com',
+            password: await bcrypt.hash('admin123', 10),
+            phone: '9999999999',
+            role: 'admin'
+        });
+        console.log('✅ Created admin user: admin@bookmyshow.com');
+        
+        // Create Regular User
+        const regularUser = await User.create({
+            name: 'John Doe',
+            email: 'john@example.com',
+            password: await bcrypt.hash('password123', 10),
+            phone: '9876543210',
+            role: 'user'
+        });
+        console.log('✅ Created regular user: john@example.com');
+        
+        // Create Theater Owner
+        let owner = await User.create({
+            name: 'Theater Owner',
+            email: 'owner@theaters.com',
+            phone: '8888888888',
+            password: await bcrypt.hash('owner123', 10),
+            role: 'theater-owner'
+        });
+        console.log('✅ Created theater owner: owner@theaters.com');
 
         // Create theaters with proper seat layouts
         const theaters = await Theater.insertMany([

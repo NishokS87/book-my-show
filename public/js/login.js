@@ -53,3 +53,25 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         btnLoader.style.display = 'none';
     }
 });
+
+// Auto-fill credentials when demo account is clicked
+function copyCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    
+    // Visual feedback
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    emailInput.style.background = '#e8f5e9';
+    passwordInput.style.background = '#e8f5e9';
+    
+    setTimeout(() => {
+        emailInput.style.background = '';
+        passwordInput.style.background = '';
+    }, 1000);
+    
+    // Show tooltip
+    alert('✓ Credentials filled!\n\nEmail: ' + email + '\nPassword: ' + password + '\n\nClick "Sign In" to login.');
+}
+
