@@ -14,10 +14,14 @@ async function loadBookings() {
         
         const data = await response.json();
         
-        console.log('Bookings response:', data);
+        console.log('Bookings API Response:', data);
+        console.log('Response status:', response.status);
+        console.log('Data status:', data.status);
         
         if (response.ok && data.status === 'success') {
             const bookings = Array.isArray(data.data) ? data.data : (data.bookings || []);
+            console.log('Bookings found:', bookings.length);
+            console.log('Bookings data:', bookings);
             window.currentBookings = bookings; // Store for print function
             displayBookings(bookings);
         } else {
@@ -57,44 +61,53 @@ function displayBookings(bookings) {
     }
     
     bookingsList.innerHTML = bookings.map(booking => {
-        const statusClass = booking.status === 'confirmed' ? 'status-confirmed' :
-                           booking.status === 'pending' ? 'status-pending' : 'status-cancelled';
+        // Handle both 'status' and 'bookingStatus' field names
+        const bookingStatus = booking.bookingStatus || booking.status || 'pending';
+        const statusClass = bookingStatus === 'confirmed' ? 'status-confirmed' :
+                           bookingStatus === 'pending' ? 'status-pending' : 'status-cancelled';
         
-        const canCancel = booking.status === 'confirmed' && 
-                         new Date(booking.show.showTime) > new Date();
+        const canCancel = bookingStatus === 'confirmed' && 
+                         new Date(booking.showDate) > new Date();
+        
+        // Safely access nested objects
+        const movieTitle = booking.movie?.title || 'Movie';
+        const theaterName = booking.theater?.name || 'Theater';
+        const showDate = booking.show?.showDate || booking.showDate;
+        const showTime = booking.show?.showTime || booking.showTime;
+        const showFormat = booking.show?.format || '2D';
         
         return `
             <div class="booking-card">
                 <div class="booking-header">
                     <div class="booking-title">
-                        <h3>${booking.show.movie.title}</h3>
+                        <h3>${movieTitle}</h3>
                         <div class="booking-code">
                             Booking Code: ${booking.bookingCode}
                         </div>
                     </div>
                     <div class="booking-status ${statusClass}">
-                        ${booking.status.toUpperCase()}
+                        ${bookingStatus.toUpperCase()}
                     </div>
                 </div>
                 <div class="booking-details">
                     <div class="detail-item">
                         <div class="detail-label">Theater</div>
                         <div class="detail-value">
-                            <i class="fas fa-building"></i> ${booking.show.theater.name}
+                            <i class="fas fa-building"></i> ${theaterName}
                         </div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Show Date & Time</div>
                         <div class="detail-value">
-                            <i class="fas fa-calendar"></i> ${formatDate(booking.show.showTime)}
+                            <i class="fas fa-calendar"></i> ${formatDate(showDate)}
                             <br>
-                            <i class="fas fa-clock"></i> ${formatTime(booking.show.showTime)}
+                            <i class="fas fa-clock"></i> ${showTime}
                         </div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Format</div>
                         <div class="detail-value">
-                            <i class="fas fa-film"></i> ${booking.show.format}
+                            <i class="fas fa-film"></i> ${showFormat}
                         </div>
                     </div>
                     <div class="detail-item">
@@ -112,12 +125,12 @@ function displayBookings(bookings) {
                     <div class="detail-item">
                         <div class="detail-label">Booked On</div>
                         <div class="detail-value">
-                            ${formatDate(booking.createdAt)}
+                            ${formatDate(booking.createdAt || booking.bookingDate)}
                         </div>
                     </div>
                 </div>
                 <div class="booking-actions">
-                    ${booking.status === 'confirmed' ? `
+                    ${bookingStatus === 'confirmed' ? `
                         <button class="btn-print" onclick="printTicket('${booking._id}')">
                             <i class="fas fa-print"></i> Print Ticket
                         </button>

@@ -24,7 +24,7 @@ const API_ENDPOINTS = {
     
     // Bookings
     BOOKINGS: `${API_BASE_URL}/bookings`,
-    MY_BOOKINGS: `${API_BASE_URL}/bookings/my-bookings`,
+    MY_BOOKINGS: `${API_BASE_URL}/bookings/user/my-bookings`,
     CANCEL_BOOKING: (bookingId) => `${API_BASE_URL}/bookings/${bookingId}/cancel`,
     
     // Payments
