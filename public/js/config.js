@@ -53,8 +53,16 @@ function isLoggedIn() {
 
 // Helper function to get user info
 function getUserInfo() {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+        const userStr = localStorage.getItem('user');
+        if (!userStr || userStr === 'undefined' || userStr === 'null') {
+            return null;
+        }
+        return JSON.parse(userStr);
+    } catch (error) {
+        console.error('Error parsing user info:', error);
+        return null;
+    }
 }
 
 // Alias for compatibility
