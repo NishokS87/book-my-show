@@ -157,9 +157,9 @@ function displayBookings(bookings) {
                             <i class="fas fa-times-circle"></i> Cancel Booking
                         </button>
                     ` : ''}
-                    ${booking.status === 'cancelled' ? `
-                        <div style="color: #dc3545; font-weight: 600;">
-                            <i class="fas fa-ban"></i> Cancelled
+                    ${bookingStatus === 'cancelled' ? `
+                        <div style="color: #dc3545; font-weight: 600; padding: 10px; background: #ffe0e0; border-radius: 5px;">
+                            <i class="fas fa-ban"></i> BOOKING CANCELLED
                         </div>
                     ` : ''}
                 </div>

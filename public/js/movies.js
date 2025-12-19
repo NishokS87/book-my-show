@@ -126,4 +126,7 @@ function filterMovies(language, genre) {
 }
 
 // Load movies on page load
-document.addEventListener('DOMContentLoaded', loadMovies);
+document.addEventListener('DOMContentLoaded', () => {
+    updateAuthUI(); // Initialize auth UI
+    loadMovies();
+});
