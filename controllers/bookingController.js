@@ -63,12 +63,14 @@ exports.createBooking = async (req, res) => {
       expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year (never expires)
     });
 
-    // Mark seats as booked in show (visual feedback only)
+    // LOCK SEATS - Mark as booked and assign to user
     await Show.updateOne(
       { _id: showId },
       {
         $set: {
-          'availableSeats.$[seat].status': 'booked'
+          'availableSeats.$[seat].status': 'booked',
+          'availableSeats.$[seat].bookedBy': req.user.id,
+          'availableSeats.$[seat].bookingId': booking._id
         },
         $inc: { bookedSeats: bookedSeats.length }
       },
@@ -77,10 +79,17 @@ exports.createBooking = async (req, res) => {
       }
     );
 
+    // Return booking with populated data for My Bookings display
+    const populatedBooking = await Booking.findById(booking._id)
+      .populate('movie', 'title language posterUrl duration rating')
+      .populate('theater', 'name location city')
+      .populate('show', 'showDate showTime format');
+
     res.status(201).json({
       status: 'success',
       message: 'Booking confirmed successfully!',
-      booking: booking
+      booking: populatedBooking,
+      data: populatedBooking // For compatibility
     });
   } catch (error) {
     console.error('Booking error:', error);
@@ -191,7 +200,7 @@ exports.cancelBooking = async (req, res) => {
       });
     }
 
-    // Release seats in show
+    // UNLOCK SEATS - Release back to available for others
     const show = await Show.findById(booking.show);
     
     if (show) {
@@ -202,6 +211,8 @@ exports.cancelBooking = async (req, res) => {
         
         if (seatIndex !== -1) {
           show.availableSeats[seatIndex].status = 'available';
+          show.availableSeats[seatIndex].bookedBy = null;
+          show.availableSeats[seatIndex].bookingId = null;
         }
       }
 
@@ -210,6 +221,7 @@ exports.cancelBooking = async (req, res) => {
     }
 
     booking.bookingStatus = 'cancelled';
+    booking.paymentStatus = 'refunded';
     await booking.save();
 
     res.status(200).json({
@@ -230,9 +242,9 @@ exports.cancelBooking = async (req, res) => {
 exports.getUserBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user.id })
-      .populate('movie', 'title language posterUrl')
-      .populate('theater', 'name location')
-      .populate('show', 'showDate showTime')
+      .populate('movie', 'title language posterUrl duration rating genre cast director')
+      .populate('theater', 'name location city address')
+      .populate('show', 'showDate showTime format')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
