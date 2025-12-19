@@ -129,17 +129,26 @@ function viewMovie(movieId) {
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
+        const query = e.target.value.toLowerCase().trim();
+        
+        console.log('Search query:', query);
+        
         if (!query) {
             displayMovies(allMovies);
             return;
         }
         
-        const filtered = allMovies.filter(movie => 
-            movie.title.toLowerCase().includes(query) ||
-            movie.director.toLowerCase().includes(query) ||
-            movie.cast.some(actor => actor.toLowerCase().includes(query))
-        );
+        const filtered = allMovies.filter(movie => {
+            const title = (movie.title || '').toLowerCase();
+            const director = (movie.director || '').toLowerCase();
+            const cast = Array.isArray(movie.cast) ? movie.cast : [];
+            
+            return title.includes(query) ||
+                   director.includes(query) ||
+                   cast.some(actor => (actor || '').toLowerCase().includes(query));
+        });
+        
+        console.log(`Found ${filtered.length} movies matching "${query}"`);
         displayMovies(filtered);
     });
 }
@@ -173,9 +182,13 @@ function filterMovies(language, genre) {
     }
     
     if (genre) {
-        filtered = filtered.filter(movie => movie.genre.includes(genre));
+        filtered = filtered.filter(movie => {
+            const genres = Array.isArray(movie.genre) ? movie.genre : [movie.genre];
+            return genres.includes(genre);
+        });
     }
     
+    console.log(`Filtered to ${filtered.length} movies (language: ${language || 'all'}, genre: ${genre || 'all'})`);
     displayMovies(filtered);
 }
 
