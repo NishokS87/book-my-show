@@ -297,16 +297,15 @@ if (confirmPaymentBtn) {
             if (response.ok && data.status === 'success') {
                 const booking = data.booking || data.data;
                 const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
-                alert(`🎉 FREE BOOKING CONFIRMED!\n\n` +
+                alert(`🎉 BOOKING SUCCESSFUL!\n\n` +
                       `✓ Booking Code: ${booking.bookingCode}\n` +
                       `✓ Seats: ${seatsList}\n` +
-                      `✓ Amount Paid: ₹0 (FREE - No Real Payment)\n\n` +
-                      `📋 View in "My Bookings"\n` +
-                      `🎫 Cancel anytime for FREE\n\n` +
-                      `This is a demo system - no actual payment charged!`);
+                      `✓ Amount: ₹0 (FREE Demo)\n\n` +
+                      `Redirecting to My Bookings...`);
                 window.location.href = 'my-bookings.html';
             } else {
-                alert('❌ Payment Failed\n\n' + (data.message || 'Please try again.'));
+                alert('❌ Booking Failed\n\n' + (data.message || 'Please try again.') + '\n\nPage will refresh to show available seats.');
+                setTimeout(() => window.location.reload(), 1500);
             }
         } catch (error) {
             console.error('Error confirming payment:', error);
