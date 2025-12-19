@@ -33,10 +33,9 @@ exports.createBooking = async (req, res) => {
         const pricing = show.pricing.find(p => p.seatType === seat.type);
         
         bookedSeats.push({
-          seatId: seat.seatId,
           row: seat.row,
           number: seat.number,
-          type: seat.type,
+          seatType: seat.type, // Model expects 'seatType' not 'type'
           price: pricing ? pricing.price : 0
         });
 
@@ -44,7 +43,10 @@ exports.createBooking = async (req, res) => {
       }
     }
 
-    // Create booking - ALWAYS SUCCEEDS, status = 'confirmed'
+    // Generate unique booking code
+    const bookingCode = 'BMS' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    // Create booking - ALWAYS SUCCEEDS, bookingStatus = 'confirmed'
     const booking = await Booking.create({
       user: req.user.id,
       show: showId,
@@ -55,8 +57,10 @@ exports.createBooking = async (req, res) => {
       totalAmount,
       showDate: show.showDate,
       showTime: show.showTime,
-      status: 'confirmed', // Directly confirmed - no payment needed
-      paymentStatus: 'completed' // Mark as paid
+      bookingCode: bookingCode, // Required field
+      bookingStatus: 'confirmed', // Model uses 'bookingStatus' not 'status'
+      paymentStatus: 'completed', // Mark as paid
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year (never expires)
     });
 
     // Mark seats as booked in show (visual feedback only)
