@@ -2,114 +2,50 @@ const Booking = require('../models/Booking');
 const Show = require('../models/Show');
 const mongoose = require('mongoose');
 
-// @desc    Create booking with optimized seat allocation
+// @desc    Create booking - ALWAYS SUCCEEDS (Project Mode - No seat conflicts)
 // @route   POST /api/bookings
 // @access  Private
 exports.createBooking = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { show: showId, seats: seatIds } = req.body;
 
-    // Get show details with lock to prevent race conditions
+    // Get show details
     const show = await Show.findById(showId)
-      .populate('movie theater')
-      .session(session);
+      .populate('movie theater');
 
     if (!show) {
-      await session.abortTransaction();
-      session.endSession();
       return res.status(404).json({
         status: 'error',
         message: 'Show not found'
       });
     }
 
-    if (!show.isActive) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        status: 'error',
-        message: 'Show is not active'
-      });
-    }
-
-    // Validate and collect seat information
+    // Collect seat information - NO AVAILABILITY CHECK
     const bookedSeats = [];
     let totalAmount = 0;
-    const unavailableSeats = [];
 
     for (const seatId of seatIds) {
-      // Find seat in available seats
+      // Find seat info (even if booked by others)
       const seat = show.availableSeats.find(s => s.seatId === seatId);
 
-      if (!seat) {
-        unavailableSeats.push(seatId);
-        continue;
+      if (seat) {
+        // Get pricing for seat type
+        const pricing = show.pricing.find(p => p.seatType === seat.type);
+        
+        bookedSeats.push({
+          seatId: seat.seatId,
+          row: seat.row,
+          number: seat.number,
+          type: seat.type,
+          price: pricing ? pricing.price : 0
+        });
+
+        totalAmount += pricing ? pricing.price : 0;
       }
-
-      // Check if seat is available
-      if (seat.status !== 'available') {
-        unavailableSeats.push(`${seat.row}${seat.number} (${seat.status})`);
-        continue;
-      }
-
-      // Get pricing for seat type
-      const pricing = show.pricing.find(p => p.seatType === seat.type);
-      
-      bookedSeats.push({
-        seatId: seat.seatId,
-        row: seat.row,
-        number: seat.number,
-        type: seat.type,
-        price: pricing.price
-      });
-
-      totalAmount += pricing.price;
     }
 
-    // If any seats are unavailable, abort transaction
-    if (unavailableSeats.length > 0) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        status: 'error',
-        message: `The following seats are not available: ${unavailableSeats.join(', ')}. Please select different seats.`
-      });
-    }
-
-    // Atomically update seat status to 'blocked' to prevent double booking
-    const updateResult = await Show.updateOne(
-      { 
-        _id: showId,
-        'availableSeats.seatId': { $in: seatIds },
-        'availableSeats.status': 'available'
-      },
-      {
-        $set: {
-          'availableSeats.$[seat].status': 'blocked'
-        },
-        $inc: { bookedSeats: bookedSeats.length }
-      },
-      {
-        arrayFilters: [{ 'seat.seatId': { $in: seatIds } }],
-        session
-      }
-    );
-
-    // Check if update was successful (all seats were available)
-    if (updateResult.modifiedCount === 0) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        status: 'error',
-        message: 'One or more seats were just booked by another user. Please select different seats.'
-      });
-    }
-
-    // Create booking
-    const booking = await Booking.create([{
+    // Create booking - ALWAYS SUCCEEDS, status = 'confirmed'
+    const booking = await Booking.create({
       user: req.user.id,
       show: showId,
       movie: show.movie._id,
@@ -119,22 +55,30 @@ exports.createBooking = async (req, res) => {
       totalAmount,
       showDate: show.showDate,
       showTime: show.showTime,
-      status: 'pending' // Will be confirmed after payment
-    }], { session });
+      status: 'confirmed', // Directly confirmed - no payment needed
+      paymentStatus: 'completed' // Mark as paid
+    });
 
-    // Commit transaction
-    await session.commitTransaction();
-    session.endSession();
+    // Mark seats as booked in show (visual feedback only)
+    await Show.updateOne(
+      { _id: showId },
+      {
+        $set: {
+          'availableSeats.$[seat].status': 'booked'
+        },
+        $inc: { bookedSeats: bookedSeats.length }
+      },
+      {
+        arrayFilters: [{ 'seat.seatId': { $in: seatIds } }]
+      }
+    );
 
     res.status(201).json({
       status: 'success',
-      message: 'Seats blocked successfully. Complete payment within 10 minutes.',
-      booking: booking[0]
+      message: 'Booking confirmed successfully!',
+      booking: booking
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    
     console.error('Booking error:', error);
     res.status(500).json({
       status: 'error',

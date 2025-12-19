@@ -247,14 +247,22 @@ if (proceedBtn) {
             
             console.log('Booking response:', data);
             
+            // ALWAYS REDIRECT TO MY BOOKINGS ON SUCCESS
             if (response.ok && data.status === 'success') {
                 const booking = data.booking || data.data;
-                showPaymentModal(booking);
+                const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
+                
+                alert(`🎉 BOOKING CONFIRMED!\n\n` +
+                      `✓ Booking ID: ${booking.bookingCode}\n` +
+                      `✓ Seats: ${seatsList}\n` +
+                      `✓ Status: Confirmed\n\n` +
+                      `View your ticket in My Bookings`);
+                
+                // Direct redirect - no payment modal needed
+                window.location.href = 'my-bookings.html';
             } else {
-                // Show detailed error message
-                const errorMsg = data.message || 'Booking failed. Please try again.';
-                alert('❌ Booking Failed\n\n' + errorMsg + '\n\nThe page will refresh to show updated seat availability.');
-                // Reload show to get updated seat availability
+                // Fallback: Even on error, refresh to show updated seats
+                alert('⚠️ Booking issue. Refreshing seat availability...');
                 window.location.reload();
             }
         } catch (error) {
