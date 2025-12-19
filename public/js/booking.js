@@ -1,6 +1,5 @@
 // Check authentication
 if (!requireAuth()) {
-    // requireAuth will redirect to login if not authenticated
 }
 
 let currentShow = null;
@@ -35,7 +34,12 @@ async function loadShowDetails() {
             displayShowInfo(currentShow);
             
             // \ud83d\udd12 STEP 2: Load booked seats from backend (CRITICAL)
-            await loadBookedSeats();
+            // Try to load, but don't fail if endpoint doesn't exist yet
+            try {
+                await loadBookedSeats();
+            } catch (err) {
+                console.log('Could not load booked seats (using show data instead):', err);
+            }
             
             displaySeats(currentShow);
         } else {
@@ -64,14 +68,18 @@ async function loadBookedSeats() {
             console.log('🔴 Booked seats from backend:', bookedSeatIds);
             
             // Mark seats as booked in current show object
-            currentShow.availableSeats.forEach(seat => {
-                if (bookedSeatIds.includes(seat.seatId)) {
-                    seat.status = 'booked';  // ✅ Update status from backend
-                }
-            });
+            if (currentShow.availableSeats && Array.isArray(currentShow.availableSeats)) {
+                currentShow.availableSeats.forEach(seat => {
+                    const seatId = seat.seatId || `${seat.row}${seat.number}`;
+                    if (bookedSeatIds.includes(seatId)) {
+                        seat.status = 'booked';  // ✅ Update status from backend
+                    }
+                });
+            }
         }
     } catch (error) {
         console.error('Error loading booked seats:', error);
+        // Don't throw - just log and continue
     }
 }
 
