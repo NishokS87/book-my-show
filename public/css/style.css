@@ -782,9 +782,11 @@ body {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    align-items: center;
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
 }
 
 /* Buttons */
@@ -837,6 +839,30 @@ body {
 }
 
 .btn-danger:active {
+    transform: translateY(0);
+}
+
+.btn-print {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: var(--white);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+    margin-right: 10px;
+}
+
+.btn-print:hover {
+    background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+}
+
+.btn-print:active {
     transform: translateY(0);
 }
 

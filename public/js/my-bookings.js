@@ -18,6 +18,7 @@ async function loadBookings() {
         
         if (response.ok && data.status === 'success') {
             const bookings = Array.isArray(data.data) ? data.data : (data.bookings || []);
+            window.currentBookings = bookings; // Store for print function
             displayBookings(bookings);
         } else {
             bookingsList.innerHTML = `
@@ -115,19 +116,23 @@ function displayBookings(bookings) {
                         </div>
                     </div>
                 </div>
-                ${canCancel ? `
-                    <div class="booking-actions">
+                <div class="booking-actions">
+                    ${booking.status === 'confirmed' ? `
+                        <button class="btn-print" onclick="printTicket('${booking._id}')">
+                            <i class="fas fa-print"></i> Print Ticket
+                        </button>
+                    ` : ''}
+                    ${canCancel ? `
                         <button class="btn-danger" onclick="cancelBooking('${booking._id}')">
                             <i class="fas fa-times-circle"></i> Cancel Booking
                         </button>
-                    </div>
-                ` : booking.status === 'cancelled' ? `
-                    <div class="booking-actions">
-                        <div style="color: #dc3545; font-weight: 600; text-align: right;">
+                    ` : ''}
+                    ${booking.status === 'cancelled' ? `
+                        <div style="color: #dc3545; font-weight: 600;">
                             <i class="fas fa-ban"></i> Cancelled
                         </div>
-                    </div>
-                ` : ''}
+                    ` : ''}
+                </div>
             </div>
         `;
     }).join('');
@@ -162,6 +167,130 @@ async function cancelBooking(bookingId) {
         alert('❌ Network Error\n\nPlease check your connection and try again.');
     }
 }
+
+// Print ticket function
+function printTicket(bookingId) {
+    const bookings = window.currentBookings || [];
+    const booking = bookings.find(b => b._id === bookingId);
+    
+    if (!booking) {
+        alert('Booking not found!');
+        return;
+    }
+    
+    // Create print content
+    const printWindow = window.open('', '_blank');
+    const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Ticket - ${booking.bookingCode}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                .ticket { border: 3px solid #f84464; border-radius: 15px; padding: 30px; background: #fff; }
+                .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { color: #f84464; margin: 0 0 10px 0; font-size: 36px; }
+                .header .tagline { color: #666; font-size: 14px; }
+                .ticket-code { background: #f84464; color: white; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; margin: 20px 0; }
+                .details { margin: 30px 0; }
+                .detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid #eee; }
+                .detail-label { width: 200px; font-weight: bold; color: #333; }
+                .detail-value { flex: 1; color: #666; }
+                .seats { background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; color: #2e7d32; margin: 20px 0; }
+                .amount { background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center; font-size: 24px; font-weight: bold; color: #e65100; margin: 20px 0; }
+                .qr-code { text-align: center; margin: 30px 0; }
+                .qr-placeholder { width: 200px; height: 200px; border: 2px dashed #ccc; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: #999; }
+                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc; color: #666; font-size: 12px; }
+                .status { display: inline-block; padding: 8px 20px; background: #4caf50; color: white; border-radius: 20px; font-size: 14px; font-weight: bold; }
+                @media print { body { padding: 20px; } .no-print { display: none; } }
+            </style>
+        </head>
+        <body>
+            <div class="ticket">
+                <div class="header">
+                    <h1>🎬 BookMyShow</h1>
+                    <div class="tagline">Your Movie Ticket</div>
+                    <div style="margin-top: 10px;">
+                        <span class="status">${booking.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                
+                <div class="ticket-code">
+                    BOOKING CODE: ${booking.bookingCode}
+                </div>
+                
+                <div class="details">
+                    <div class="detail-row">
+                        <div class="detail-label">Movie:</div>
+                        <div class="detail-value">${booking.show.movie.title}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Theater:</div>
+                        <div class="detail-value">${booking.show.theater.name}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Show Date:</div>
+                        <div class="detail-value">${formatDate(booking.show.showTime)}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Show Time:</div>
+                        <div class="detail-value">${formatTime(booking.show.showTime)}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Format:</div>
+                        <div class="detail-value">${booking.show.format}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Number of Seats:</div>
+                        <div class="detail-value">${booking.seats.length}</div>
+                    </div>
+                </div>
+                
+                <div class="seats">
+                    🎫 SEATS: ${seatsList}
+                </div>
+                
+                <div class="amount">
+                    💰 TOTAL AMOUNT: ₹${formatCurrency(booking.totalAmount)} (PAID - FREE Demo)
+                </div>
+                
+                <div class="qr-code">
+                    <div class="qr-placeholder">
+                        <div>
+                            <div style="font-size: 48px; margin-bottom: 10px;">📱</div>
+                            <div>QR Code Placeholder</div>
+                            <div style="font-size: 10px; margin-top: 5px;">${booking.bookingCode}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p><strong>Note:</strong> This is a demo ticket. No real payment was made.</p>
+                    <p>Please arrive 15 minutes before showtime.</p>
+                    <p>Booked on: ${formatDate(booking.createdAt)}</p>
+                    <p style="margin-top: 15px;">Thank you for using BookMyShow!</p>
+                </div>
+            </div>
+            
+            <div class="no-print" style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()" style="background: #f84464; color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 8px; cursor: pointer;">
+                    🖨️ Print Ticket
+                </button>
+                <button onclick="window.close()" style="background: #666; color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px;">
+                    Close
+                </button>
+            </div>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+}
+
+// Store bookings for print function
+window.currentBookings = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', loadBookings);
