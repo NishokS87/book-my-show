@@ -11,7 +11,8 @@ const {
   deleteShow,
   getShowsByMovie,
   getShowsByTheater,
-  getShowsByMovieAndCity
+  getShowsByMovieAndCity,
+  getBookedSeats
 } = require('../controllers/showController');
 
 router.route('/')
@@ -61,5 +62,8 @@ router.route('/:id')
     invalidateCache(['show']),
     deleteShow
   );
+
+// Get booked seats for a show (CRITICAL for frontend to load locked seats)
+router.get('/:id/booked-seats', getBookedSeats);
 
 module.exports = router;

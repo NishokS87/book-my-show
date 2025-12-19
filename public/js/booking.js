@@ -21,6 +21,7 @@ async function loadShowDetails() {
     const seatsGrid = document.getElementById('seatsGrid');
     
     try {
+        // \u2705 STEP 1: Load show details
         const response = await fetch(API_ENDPOINTS.SHOW_DETAILS(showId), {
             headers: getAuthHeaders()
         });
@@ -32,6 +33,10 @@ async function loadShowDetails() {
         if (response.ok && data.status === 'success') {
             currentShow = data.data;
             displayShowInfo(currentShow);
+            
+            // \ud83d\udd12 STEP 2: Load booked seats from backend (CRITICAL)
+            await loadBookedSeats();
+            
             displaySeats(currentShow);
         } else {
             alert(data.message || 'Show not found');
@@ -45,6 +50,24 @@ async function loadShowDetails() {
                 <p>Error loading show details. Please try again.</p>
             </div>
         `;
+    }
+}
+
+// \ud83d\udd12 Load booked seats from backend (ONE SOURCE OF TRUTH)
+async function loadBookedSeats() {
+    try {
+        const response = await fetch(`/api/shows/${showId}/booked-seats`);
+        const data = await response.json();
+        
+        if (response.ok && data.status === 'success') {
+            const bookedSeatIds = data.data;  // Array of seatIds like [\"A5\", \"A6\"]
+            console.log('\ud83d\udd34 Booked seats from backend:', bookedSeatIds);
+            
+            // Mark seats as booked in current show object
+            currentShow.availableSeats.forEach(seat => {
+                if (bookedSeatIds.includes(seat.seatId)) {
+                    seat.status = 'booked';  // \u2705 Update status from backend\n                }\n            });\n        }\n    } catch (error) {
+        console.error('Error loading booked seats:', error);
     }
 }
 
@@ -109,9 +132,12 @@ function displaySeats(show) {
                     // Ensure status is correctly set: 'booked' or 'available'
                     const seatStatus = (seat.status === 'booked' || seat.status === 'blocked') ? 'booked' : 'available';
                     
+                    // Use seatId (e.g., \"A5\") NOT _id
+                    const seatIdentifier = seat.seatId || `${seat.row}${seat.number}`;
+                    
                     return `
                         <div class="seat ${seatStatus}" 
-                             data-seat-id="${seat._id}"
+                             data-seat-id="${seatIdentifier}"
                              data-row="${seat.row}"
                              data-number="${seat.number}"
                              data-type="${seatType}"

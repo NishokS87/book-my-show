@@ -43,6 +43,7 @@ const showSchema = new mongoose.Schema({
     }
   }],
   availableSeats: [{
+    seatId: String,       // e.g., "A5"
     row: String,
     number: Number,
     seatType: String,
@@ -50,6 +51,16 @@ const showSchema = new mongoose.Schema({
       type: String,
       enum: ['available', 'booked', 'blocked'],
       default: 'available'
+    },
+    bookedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    bookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Booking',
+      default: null
     }
   }],
   totalSeats: {

@@ -325,6 +325,7 @@ router.get('/', async (req, res) => {
                                 // Add all seats from this type
                                 for (const seat of seatType.seats) {
                                     availableSeats.push({
+                                        seatId: `${seat.row}${seat.number}`,  // e.g., "A5"
                                         row: seat.row,
                                         number: seat.number,
                                         seatType: seatType.type,

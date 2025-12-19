@@ -2,7 +2,7 @@ const Booking = require('../models/Booking');
 const Show = require('../models/Show');
 const mongoose = require('mongoose');
 
-// @desc    Create booking - ALWAYS SUCCEEDS (Project Mode - No seat conflicts)
+// @desc    Create booking with proper seat locking
 // @route   POST /api/bookings
 // @access  Private
 exports.createBooking = async (req, res) => {
@@ -20,27 +20,40 @@ exports.createBooking = async (req, res) => {
       });
     }
 
-    // Collect seat information - NO AVAILABILITY CHECK
+    // ✅ CHECK SEAT AVAILABILITY - Prevent double booking
     const bookedSeats = [];
     let totalAmount = 0;
 
     for (const seatId of seatIds) {
-      // Find seat info (even if booked by others)
       const seat = show.availableSeats.find(s => s.seatId === seatId);
-
-      if (seat) {
-        // Get pricing for seat type
-        const pricing = show.pricing.find(p => p.seatType === seat.type);
-        
-        bookedSeats.push({
-          row: seat.row,
-          number: seat.number,
-          seatType: seat.type, // Model expects 'seatType' not 'type'
-          price: pricing ? pricing.price : 0
+      
+      // 🚫 Validate seat exists and is available
+      if (!seat) {
+        return res.status(400).json({
+          status: 'error',
+          message: `Seat ${seatId} not found`
         });
-
-        totalAmount += pricing ? pricing.price : 0;
       }
+      
+      if (seat.status === 'booked') {
+        return res.status(400).json({
+          status: 'error',
+          message: `Seat ${seatId} is already booked by another user`
+        });
+      }
+
+      
+      // Get pricing for seat type
+      const pricing = show.pricing.find(p => p.seatType === seat.seatType);
+      
+      bookedSeats.push({
+        row: seat.row,
+        number: seat.number,
+        seatType: seat.seatType,
+        price: pricing ? pricing.price : 0
+      });
+
+      totalAmount += pricing ? pricing.price : 0;
     }
 
     // Generate unique booking code

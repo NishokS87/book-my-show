@@ -93,6 +93,7 @@ exports.createShow = async (req, res) => {
     screen.seatLayout.seatTypes.forEach(seatType => {
       seatType.seats.forEach(seat => {
         availableSeats.push({
+          seatId: `${seat.row}${seat.number}`,  // e.g., "A5"
           row: seat.row,
           number: seat.number,
           seatType: seatType.type,
@@ -251,6 +252,37 @@ exports.getShowsByMovieAndCity = async (req, res) => {
       status: 'success',
       count: shows.length,
       data: shows
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get booked seats for a show (CRITICAL for seat locking)
+// @route   GET /api/shows/:id/booked-seats
+// @access  Public
+exports.getBookedSeats = async (req, res) => {
+  try {
+    const show = await Show.findById(req.params.id);
+
+    if (!show) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Show not found'
+      });
+    }
+
+    // Return array of seatIds that are booked
+    const bookedSeats = show.availableSeats
+      .filter(seat => seat.status === 'booked')
+      .map(seat => seat.seatId);
+
+    res.status(200).json({
+      status: 'success',
+      data: bookedSeats
     });
   } catch (error) {
     res.status(500).json({
