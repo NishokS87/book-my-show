@@ -503,6 +503,7 @@ body {
     border-color: #c62828;
     border-width: 3px;
     cursor: not-allowed;
+    pointer-events: none; /* Completely disable clicking */
     color: #b71c1c;
     font-weight: 700;
     position: relative;

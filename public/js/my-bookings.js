@@ -191,9 +191,17 @@ function printTicket(bookingId) {
         return;
     }
     
-    // Create print content
-    const printWindow = window.open('', '_blank');
+    // Safely extract data
+    const bookingStatus = booking.bookingStatus || booking.status || 'Confirmed';
+    const movieTitle = booking.movie?.title || 'Movie';
+    const theaterName = booking.theater?.name || 'Theater';
+    const showDate = booking.show?.showDate || booking.showDate;
+    const showTime = booking.show?.showTime || booking.showTime;
+    const showFormat = booking.show?.format || '2D';
     const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
+    
+    // Create print content
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
     
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -201,8 +209,9 @@ function printTicket(bookingId) {
         <head>
             <title>Ticket - ${booking.bookingCode}</title>
             <style>
-                body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
-                .ticket { border: 3px solid #f84464; border-radius: 15px; padding: 30px; background: #fff; }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; background: #f5f5f5; }
+                .ticket { border: 3px solid #f84464; border-radius: 15px; padding: 30px; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
                 .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 20px; margin-bottom: 20px; }
                 .header h1 { color: #f84464; margin: 0 0 10px 0; font-size: 36px; }
                 .header .tagline { color: #666; font-size: 14px; }
@@ -214,10 +223,18 @@ function printTicket(bookingId) {
                 .seats { background: #e8f5e9; padding: 15px; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; color: #2e7d32; margin: 20px 0; }
                 .amount { background: #fff3e0; padding: 15px; border-radius: 8px; text-align: center; font-size: 24px; font-weight: bold; color: #e65100; margin: 20px 0; }
                 .qr-code { text-align: center; margin: 30px 0; }
-                .qr-placeholder { width: 200px; height: 200px; border: 2px dashed #ccc; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: #999; }
-                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc; color: #666; font-size: 12px; }
-                .status { display: inline-block; padding: 8px 20px; background: #4caf50; color: white; border-radius: 20px; font-size: 14px; font-weight: bold; }
-                @media print { body { padding: 20px; } .no-print { display: none; } }
+                .qr-placeholder { width: 200px; height: 200px; border: 2px dashed #ccc; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: #999; border-radius: 8px; }
+                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px dashed #ccc; color: #666; font-size: 12px; line-height: 1.8; }
+                .status { display: inline-block; padding: 8px 20px; background: #4caf50; color: white; border-radius: 20px; font-size: 14px; font-weight: bold; margin-top: 10px; }
+                .btn-group { text-align: center; margin-top: 30px; }
+                .btn { background: #f84464; color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 8px; cursor: pointer; margin: 0 10px; transition: transform 0.2s; }
+                .btn:hover { transform: scale(1.05); }
+                .btn-secondary { background: #666; }
+                @media print { 
+                    body { padding: 20px; background: white; } 
+                    .btn-group { display: none; }
+                    .ticket { box-shadow: none; }
+                }
             </style>
         </head>
         <body>
@@ -225,9 +242,7 @@ function printTicket(bookingId) {
                 <div class="header">
                     <h1>🎬 BookMyShow</h1>
                     <div class="tagline">Your Movie Ticket</div>
-                    <div style="margin-top: 10px;">
-                        <span class="status">${booking.status.toUpperCase()}</span>
-                    </div>
+                    <span class="status">${bookingStatus.toUpperCase()}</span>
                 </div>
                 
                 <div class="ticket-code">
@@ -236,65 +251,71 @@ function printTicket(bookingId) {
                 
                 <div class="details">
                     <div class="detail-row">
-                        <div class="detail-label">Movie:</div>
-                        <div class="detail-value">${booking.show.movie.title}</div>
+                        <div class="detail-label">🎬 Movie:</div>
+                        <div class="detail-value">${movieTitle}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Theater:</div>
-                        <div class="detail-value">${booking.show.theater.name}</div>
+                        <div class="detail-label">🏢 Theater:</div>
+                        <div class="detail-value">${theaterName}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Show Date:</div>
-                        <div class="detail-value">${formatDate(booking.show.showTime)}</div>
+                        <div class="detail-label">📅 Show Date:</div>
+                        <div class="detail-value">${new Date(showDate).toLocaleDateString()}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Show Time:</div>
-                        <div class="detail-value">${formatTime(booking.show.showTime)}</div>
+                        <div class="detail-label">🕐 Show Time:</div>
+                        <div class="detail-value">${showTime}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Format:</div>
-                        <div class="detail-value">${booking.show.format}</div>
+                        <div class="detail-label">🎥 Format:</div>
+                        <div class="detail-value">${showFormat}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Number of Seats:</div>
-                        <div class="detail-value">${booking.seats.length}</div>
+                        <div class="detail-label">🎫 Seats:</div>
+                        <div class="detail-value">${booking.seats.length} seat(s)</div>
                     </div>
                 </div>
                 
                 <div class="seats">
-                    🎫 SEATS: ${seatsList}
+                    🪑 SEAT NUMBERS: ${seatsList}
                 </div>
                 
                 <div class="amount">
-                    💰 TOTAL AMOUNT: ₹${formatCurrency(booking.totalAmount)} (PAID - FREE Demo)
+                    💰 TOTAL: ₹${booking.totalAmount.toFixed(2)}
                 </div>
                 
                 <div class="qr-code">
                     <div class="qr-placeholder">
-                        <div>
+                        <div style="text-align: center;">
                             <div style="font-size: 48px; margin-bottom: 10px;">📱</div>
-                            <div>QR Code Placeholder</div>
-                            <div style="font-size: 10px; margin-top: 5px;">${booking.bookingCode}</div>
+                            <div>QR Code</div>
+                            <div style="font-size: 10px; margin-top: 5px; word-break: break-all; padding: 0 10px;">${booking.bookingCode}</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="footer">
-                    <p><strong>Note:</strong> This is a demo ticket. No real payment was made.</p>
-                    <p>Please arrive 15 minutes before showtime.</p>
-                    <p>Booked on: ${formatDate(booking.createdAt)}</p>
-                    <p style="margin-top: 15px;">Thank you for using BookMyShow!</p>
+                    <p>Please arrive 15 minutes before showtime</p>
+                    <p>Booked on: ${new Date(booking.bookingDate || booking.createdAt).toLocaleString()}</p>
+                    <p style="margin-top: 10px;">Thank you for choosing BookMyShow!</p>
                 </div>
             </div>
             
-            <div class="no-print" style="text-align: center; margin-top: 30px;">
-                <button onclick="window.print()" style="background: #f84464; color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 8px; cursor: pointer;">
+            <div class="btn-group">
+                <button class="btn" onclick="window.print()">
                     🖨️ Print Ticket
                 </button>
-                <button onclick="window.close()" style="background: #666; color: white; border: none; padding: 15px 40px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-left: 10px;">
-                    Close
+                <button class="btn btn-secondary" onclick="window.close()">
+                    ❌ Close
                 </button>
             </div>
+            
+            <script>
+                // Auto-focus for easy printing
+                window.onload = function() {
+                    document.querySelector('.btn').focus();
+                };
+            </script>
         </body>
         </html>
     `);
