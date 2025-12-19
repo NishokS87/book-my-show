@@ -178,7 +178,7 @@ async function cancelBooking(bookingId) {
         console.log('Cancelling booking:', bookingId);
         
         const response = await fetch(API_ENDPOINTS.CANCEL_BOOKING(bookingId), {
-            method: 'PUT',
+            method: 'DELETE',
             headers: getAuthHeaders()
         });
         
