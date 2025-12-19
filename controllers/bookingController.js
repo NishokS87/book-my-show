@@ -25,7 +25,14 @@ exports.createBooking = async (req, res) => {
     let totalAmount = 0;
 
     for (const seatId of seatIds) {
-      const seat = show.availableSeats.find(s => s.seatId === seatId);
+      // Support both old format (row+number) and new format (seatId)
+      const seat = show.availableSeats.find(s => {
+        if (s.seatId) {
+          return s.seatId === seatId;
+        }
+        // Fallback: match by row+number for old data
+        return `${s.row}${s.number}` === seatId;
+      });
       
       // 🚫 Validate seat exists and is available
       if (!seat) {
@@ -77,20 +84,24 @@ exports.createBooking = async (req, res) => {
     });
 
     // LOCK SEATS - Mark as booked and assign to user
-    await Show.updateOne(
-      { _id: showId },
-      {
-        $set: {
-          'availableSeats.$[seat].status': 'booked',
-          'availableSeats.$[seat].bookedBy': req.user.id,
-          'availableSeats.$[seat].bookingId': booking._id
-        },
-        $inc: { bookedSeats: bookedSeats.length }
-      },
-      {
-        arrayFilters: [{ 'seat.seatId': { $in: seatIds } }]
+    // Fetch show again to modify seats directly
+    const showToUpdate = await Show.findById(showId);
+    
+    for (const seatId of seatIds) {
+      const seatIndex = showToUpdate.availableSeats.findIndex(s => {
+        if (s.seatId) return s.seatId === seatId;
+        return `${s.row}${s.number}` === seatId;
+      });
+      
+      if (seatIndex !== -1) {
+        showToUpdate.availableSeats[seatIndex].status = 'booked';
+        showToUpdate.availableSeats[seatIndex].bookedBy = req.user.id;
+        showToUpdate.availableSeats[seatIndex].bookingId = booking._id;
       }
-    );
+    }
+    
+    showToUpdate.bookedSeats += bookedSeats.length;
+    await showToUpdate.save();
 
     // Return booking with populated data for My Bookings display
     const populatedBooking = await Booking.findById(booking._id)
