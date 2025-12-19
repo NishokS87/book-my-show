@@ -44,26 +44,26 @@
                 <div class="seat-legend">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <p style="font-size: 14px; font-weight: 600; margin: 0; color: #333;">
-                            <i class="fas fa-info-circle"></i> Seat Status Guide:
+                            <i class="fas fa-info-circle"></i> Seat Status:
                         </p>
                         <button onclick="window.location.reload()" style="background: #2196f3; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 12px;">
-                            <i class="fas fa-sync-alt"></i> Refresh Seats
+                            <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
                     <div class="legend-item">
                         <span class="seat-demo available"></span>
-                        <span><strong>Available</strong> - Click to select (FREE)</span>
+                        <span><strong>Available</strong> - Select your seats</span>
                     </div>
                     <div class="legend-item">
                         <span class="seat-demo selected"></span>
-                        <span><strong>Selected</strong> - Your selection</span>
+                        <span><strong>Selected</strong> - Your seats</span>
                     </div>
                     <div class="legend-item">
                         <span class="seat-demo booked"></span>
-                        <span><strong>Booked</strong> - Already taken (Cannot select)</span>
+                        <span><strong>Booked</strong> - Unavailable</span>
                     </div>
-                    <p style="font-size: 12px; color: #666; margin-top: 10px; font-style: italic;">
-                        💡 Tip: If seats get taken, click "Refresh Seats" to see latest availability
+                    <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> Seats update in real-time. Refresh to see latest availability.
                     </p>
                 </div>
             </div>
@@ -88,27 +88,27 @@
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>🎟️ FREE Demo Booking</h2>
-            <div style="background: #fff3cd; border: 2px dashed #ffc107; padding: 10px; border-radius: 8px; margin: 15px 0;">
-                <p style="color: #856404; font-size: 14px; font-weight: 600; margin: 0;">
-                    ⚡ <strong>NO REAL PAYMENT REQUIRED</strong> - This is a demo system
-                </p>
-            </div>
+            <h2>🎟️ Confirm Booking</h2>
             <div class="payment-details">
-                <p style="text-decoration: line-through; color: #999;"><strong>Original Amount:</strong> <span id="paymentAmount">₹0</span></p>
-                <p style="font-size: 28px; color: #4caf50; font-weight: bold; margin: 15px 0;">
-                    <i class="fas fa-gift"></i> FREE - ₹0
-                </p>
-                <p><strong>Selected Seats:</strong> <span id="paymentSeats"></span></p>
-                <p style="font-size: 13px; color: #666; margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 5px;">
-                    ✓ Instant booking - no payment needed<br>
-                    ✓ Shows in 'My Bookings' immediately<br>
-                    ✓ Free cancellation anytime
-                </p>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;"><strong>Booking Details</strong></p>
+                    <p><strong>Selected Seats:</strong> <span id="paymentSeats"></span></p>
+                    <p style="font-size: 24px; color: #333; font-weight: bold; margin: 15px 0;">
+                        Total Amount: <span id="paymentAmount" style="color: #e91e63;">₹0</span>
+                    </p>
+                </div>
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <p style="font-size: 13px; color: #2e7d32; margin: 0; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> Instant Confirmation
+                    </p>
+                    <p style="font-size: 12px; color: #2e7d32; margin: 5px 0 0 0;">
+                        Your seats will be confirmed immediately
+                    </p>
+                </div>
             </div>
-            <button id="confirmPaymentBtn" class="btn-primary" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); font-size: 18px; padding: 18px; font-weight: 700;">
+            <button id="confirmPaymentBtn" class="btn-primary" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); font-size: 18px; padding: 18px; font-weight: 700;">
                 <i class="fas fa-check-circle"></i>
-                <span id="payBtnText">✓ BOOK FREE (No Payment)</span>
+                <span id="payBtnText">CONFIRM BOOKING</span>
                 <i id="payBtnLoader" class="fas fa-spinner fa-spin" style="display: none;"></i>
             </button>
         </div>

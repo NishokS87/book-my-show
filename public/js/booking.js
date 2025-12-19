@@ -297,11 +297,11 @@ if (confirmPaymentBtn) {
             if (response.ok && data.status === 'success') {
                 const booking = data.booking || data.data;
                 const seatsList = booking.seats.map(s => `${s.row}${s.number}`).join(', ');
-                alert(`🎉 BOOKING SUCCESSFUL!\n\n` +
-                      `✓ Booking Code: ${booking.bookingCode}\n` +
+                alert(`🎉 BOOKING CONFIRMED!\n\n` +
+                      `✓ Booking ID: ${booking.bookingCode}\n` +
                       `✓ Seats: ${seatsList}\n` +
-                      `✓ Amount: ₹0 (FREE Demo)\n\n` +
-                      `Redirecting to My Bookings...`);
+                      `✓ Status: Confirmed\n\n` +
+                      `View your ticket in My Bookings`);
                 window.location.href = 'my-bookings.html';
             } else {
                 alert('❌ Booking Failed\n\n' + (data.message || 'Please try again.') + '\n\nPage will refresh to show available seats.');
