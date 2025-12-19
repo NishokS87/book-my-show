@@ -76,6 +76,15 @@ function displayBookings(bookings) {
         const showTime = booking.show?.showTime || booking.showTime;
         const showFormat = booking.show?.format || '2D';
         
+        // IMPORTANT: Format seat list clearly
+        const seatsList = booking.seats && booking.seats.length > 0 
+            ? booking.seats.map(s => `${s.row}${s.number}`).join(', ')
+            : 'No seats';
+        
+        // Log for debugging
+        console.log('Booking seats:', booking.seats);
+        console.log('Formatted seats:', seatsList);
+        
         return `
             <div class="booking-card">
                 <div class="booking-header">
@@ -89,6 +98,20 @@ function displayBookings(bookings) {
                         ${bookingStatus.toUpperCase()}
                     </div>
                 </div>
+                
+                <!-- HIGHLIGHTED SEATS SECTION -->
+                <div class="seats-highlight" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 20px; border-radius: 10px; margin: 15px 0; text-align: center; border: 2px solid #4caf50;">
+                    <div style="font-size: 14px; color: #2e7d32; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-couch"></i> YOUR SEATS
+                    </div>
+                    <div style="font-size: 24px; font-weight: bold; color: #1b5e20; letter-spacing: 2px;">
+                        ${seatsList}
+                    </div>
+                    <div style="font-size: 12px; color: #388e3c; margin-top: 5px;">
+                        ${booking.totalSeats || booking.seats.length} Seat(s)
+                    </div>
+                </div>
+                
                 <div class="booking-details">
                     <div class="detail-item">
                         <div class="detail-label">Theater</div>
@@ -108,12 +131,6 @@ function displayBookings(bookings) {
                         <div class="detail-label">Format</div>
                         <div class="detail-value">
                             <i class="fas fa-film"></i> ${showFormat}
-                        </div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Seats</div>
-                        <div class="detail-value">
-                            <i class="fas fa-couch"></i> ${booking.seats.map(s => `${s.row}${s.number}`).join(', ')}
                         </div>
                     </div>
                     <div class="detail-item">
