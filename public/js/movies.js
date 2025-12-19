@@ -9,20 +9,49 @@ async function loadMovies() {
         return;
     }
     
+    // Show loading
+    moviesGrid.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading movies...</p>
+        </div>
+    `;
+    
     console.log('Loading movies from:', API_ENDPOINTS.MOVIES);
     
     try {
-        const response = await fetch(API_ENDPOINTS.MOVIES);
+        const response = await fetch(API_ENDPOINTS.MOVIES, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
         console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         const data = await response.json();
         console.log('Response data:', data);
         
-        if (response.ok && data.status === 'success') {
+        if (data.status === 'success') {
             // Handle both response formats: data.data or data.movies
             allMovies = Array.isArray(data.data) ? data.data : (data.movies || []);
             console.log('✅ Loaded movies:', allMovies.length);
-            displayMovies(allMovies);
+            
+            if (allMovies.length === 0) {
+                moviesGrid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-film"></i>
+                        <p>No movies in database</p>
+                        <p>Seed database: POST /api/fullseed</p>
+                    </div>
+                `;
+            } else {
+                displayMovies(allMovies);
+            }
         } else {
             console.error('❌ Failed to load movies:', data);
             moviesGrid.innerHTML = `
@@ -39,6 +68,7 @@ async function loadMovies() {
             <div class="no-results">
                 <i class="fas fa-exclamation-circle"></i>
                 <p>Error connecting to server</p>
+                <p>${error.message}</p>
                 <p>Make sure server is running on port 5001</p>
                 <p><a href="javascript:location.reload()">Reload Page</a></p>
             </div>
