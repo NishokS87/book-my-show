@@ -4,30 +4,43 @@ let allMovies = [];
 async function loadMovies() {
     const moviesGrid = document.getElementById('moviesGrid');
     
+    if (!moviesGrid) {
+        console.error('Movies grid element not found!');
+        return;
+    }
+    
+    console.log('Loading movies from:', API_ENDPOINTS.MOVIES);
+    
     try {
         const response = await fetch(API_ENDPOINTS.MOVIES);
+        console.log('Response status:', response.status);
+        
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (response.ok && data.status === 'success') {
             // Handle both response formats: data.data or data.movies
             allMovies = Array.isArray(data.data) ? data.data : (data.movies || []);
-            console.log('Loaded movies:', allMovies.length);
+            console.log('✅ Loaded movies:', allMovies.length);
             displayMovies(allMovies);
         } else {
-            console.error('Failed to load movies:', data);
+            console.error('❌ Failed to load movies:', data);
             moviesGrid.innerHTML = `
                 <div class="no-results">
                     <i class="fas fa-exclamation-circle"></i>
                     <p>Failed to load movies: ${data.message || 'Unknown error'}</p>
+                    <p><a href="javascript:location.reload()">Reload Page</a></p>
                 </div>
             `;
         }
     } catch (error) {
-        console.error('Error loading movies:', error);
+        console.error('❌ Error loading movies:', error);
         moviesGrid.innerHTML = `
             <div class="no-results">
                 <i class="fas fa-exclamation-circle"></i>
-                <p>Error connecting to server. Please check if the server is running.</p>
+                <p>Error connecting to server</p>
+                <p>Make sure server is running on port 5001</p>
+                <p><a href="javascript:location.reload()">Reload Page</a></p>
             </div>
         `;
     }
