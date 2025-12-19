@@ -60,13 +60,17 @@ async function loadBookedSeats() {
         const data = await response.json();
         
         if (response.ok && data.status === 'success') {
-            const bookedSeatIds = data.data;  // Array of seatIds like [\"A5\", \"A6\"]
-            console.log('\ud83d\udd34 Booked seats from backend:', bookedSeatIds);
+            const bookedSeatIds = data.data;  // Array of seatIds like ["A5", "A6"]
+            console.log('🔴 Booked seats from backend:', bookedSeatIds);
             
             // Mark seats as booked in current show object
             currentShow.availableSeats.forEach(seat => {
                 if (bookedSeatIds.includes(seat.seatId)) {
-                    seat.status = 'booked';  // \u2705 Update status from backend\n                }\n            });\n        }\n    } catch (error) {
+                    seat.status = 'booked';  // ✅ Update status from backend
+                }
+            });
+        }
+    } catch (error) {
         console.error('Error loading booked seats:', error);
     }
 }
