@@ -90,23 +90,34 @@ function displayMovies(movies) {
         return;
     }
     
-    moviesGrid.innerHTML = movies.map(movie => `
-        <div class="movie-card" onclick="viewMovie('${movie._id}')">
-            <div class="movie-poster">
-                <i class="fas fa-film"></i>
-            </div>
-            <div class="movie-info">
-                <h3>${movie.title}</h3>
-                <div class="movie-meta">
-                    <span class="badge badge-language">${movie.language}</span>
-                    <span class="badge badge-rating">
-                        <i class="fas fa-star"></i> ${movie.rating}/10
-                    </span>
+    console.log('Displaying movies:', movies);
+    
+    moviesGrid.innerHTML = movies.map(movie => {
+        const genre = Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || 'General');
+        const rating = movie.rating || 'N/A';
+        const language = movie.language || 'Unknown';
+        const title = movie.title || 'Untitled';
+        
+        return `
+            <div class="movie-card" onclick="viewMovie('${movie._id}')">
+                <div class="movie-poster">
+                    ${movie.posterUrl ? `<img src="${movie.posterUrl}" alt="${title}">` : '<i class="fas fa-film"></i>'}
                 </div>
-                <div class="movie-genre">${movie.genre.join(', ')}</div>
+                <div class="movie-info">
+                    <h3>${title}</h3>
+                    <div class="movie-meta">
+                        <span class="badge badge-language">${language}</span>
+                        <span class="badge badge-rating">
+                            <i class="fas fa-star"></i> ${rating}
+                        </span>
+                    </div>
+                    <div class="movie-genre">${genre}</div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+    
+    console.log('Movies rendered successfully');
 }
 
 // View movie details
